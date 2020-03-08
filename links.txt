@@ -1,0 +1,6 @@
+https://stackoverflow.com/questions/58603936/why-npm-start-is-throwing-events-js187-throw-er-unhandled-error-event-in
+https://medium.com/swlh/how-to-create-your-first-mern-mongodb-express-js-react-js-and-node-js-stack-7e8b20463e66
+
+https://console.firebase.google.com/u/0/project/druglock2/overview
+https://firebase.google.com/docs/web/setup?authuser=0
+https://medium.com/feedflood/write-to-cloud-firestore-using-node-js-server-c84859fefb86
