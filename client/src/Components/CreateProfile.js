@@ -13,6 +13,8 @@ class CreateProfile extends Component {
             firstName : "",
             occupation : "",
             password: "",
+
+            CreateProfile: false
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChangeID = this.handleChangeID.bind(this);
@@ -24,44 +26,47 @@ class CreateProfile extends Component {
 
     handleChangeID(event){
         this.setState({employeeID: event.target.value});
+        console.log(this.state.employeeID);
     }
     handleChangeLast(event){
         this.setState({lastName: event.target.value});
+        console.log(this.state.lastName);
     }
     handleChangeFirst(event){
         this.setState({firstName: event.target.value});
+        console.log(this.state.firstName);
     }
     handleChangeOcc(event){
         this.setState({occupation: event.target.value});
+        console.log(this.state.occupation);
     }
     handleChangePass(event){
         this.setState({password: event.target.value});
+        console.log(this.state.password);
     }
 
     handleSubmit() {
-        
-
-    //     // Call our fetch function below once the component mounts
-    //   this.callBackendAPI()
-    //     .then(res => this.setState({ data: res.express }))
-    //     .catch(err => console.log(err));
+        fetch("http://localhost:5000/createprofile", {
+            method: 'POST',
+            body:  JSON.stringify(  
+                    {ID: `${this.state.employeeID}`,
+                    LastName: `${this.state.lastName}`,
+                    FirstName: `${this.state.firstName}`,
+                    Occ: `${this.state.occupation}`,
+                    Pass: `${this.state.password}`}),
+            headers: {
+                'Content-type': 'application/json'
+                },    
+            })
+        .then(res => res.json())
+        .catch(err => console.log(err) ); 
     }
-    //   // Fetches our GET route from the Express server. (Note the route we are fetching matches the GET route from server.js
-    // callBackendAPI = async () => {
-    //   const response = await fetch('http://localhost:5000/express_backend');
-    //   const body = await response.json();
-  
-    //   if (response.status !== 200) {
-    //     throw Error(body.message) 
-    //   }
-    //   return body;
-    // };
 
     render() {
         return (
             <Paper elevation={3} style={{fontFamily: 'Montserrat', padding:20, minWidth:150, maxWidth:500, minHeight:300, maxHeight:600}}>
                 <h1>Create an Employee Profile</h1>
-                <form onSubmit={this.handleSubmit}>
+                <form>
                     <p> Enter Your Employee ID: </p>
                     <TextField onChange={this.handleChangeID} value={this.state.employeeID} id="outlined-basic" label="Employee ID" variant="outlined" required/> <br />
 
@@ -79,10 +84,10 @@ class CreateProfile extends Component {
                     </select> <br />
 
                     <p> Enter a Password: </p>
-                    <TextField type="password" onChange={this.handleChangePass} value={this.state.password} id="outlined-basic" label="Password" variant="outlined" required/> <br />
+                    <TextField type="password" value={this.state.password} onChange={this.handleChangePass} id="outlined-basic" label="Password" variant="outlined" required/> <br />
                     <br /><br /><br /><br />
                 </form>
-                <Button variant="contained" type="submit">Submit Profile</Button>
+                <Button variant="contained" type="submit" onClick={this.handleSubmit}>Submit Profile</Button>
             </Paper>
         )
     }

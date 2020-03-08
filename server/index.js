@@ -49,6 +49,31 @@ app.get('/', (req, res) => {
     });
 })
 
+app.post('/createprofile', (req, res) => {
+    res.send({express: "test"});
+    employeeID = req.body.ID;
+    firstName = req.body.FirstName;
+    lastName = req.body.LastName;
+    occupation = req.body.Occ;
+    password = req.body.Pass;
+
+    db.collection("Employees").doc(`${employeeID}`).set({
+        ID: `${employeeID}`,
+        FirstName: `${firstName}`,
+        LastName: `${lastName}`,
+        Occupation: `${occupation}`,
+        Password: `${password}`
+    })
+    .then(function(){
+        console.log("Employee successfully added!");
+    })
+    .catch(function(error) {
+        console.error(error);
+    });
+})
+
+
+
 app.get('/express_backend', (req, res) => {
     res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' });
 

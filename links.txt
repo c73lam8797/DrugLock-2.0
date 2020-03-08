@@ -4,3 +4,7 @@ https://medium.com/swlh/how-to-create-your-first-mern-mongodb-express-js-react-j
 https://console.firebase.google.com/u/0/project/druglock2/overview
 https://firebase.google.com/docs/web/setup?authuser=0
 https://medium.com/feedflood/write-to-cloud-firestore-using-node-js-server-c84859fefb86
+
+https://reactjs.org/docs/forms.html
+https://medium.com/@maison.moa/create-a-simple-weather-app-using-node-js-express-and-react-54105094647a
+https://stackoverflow.com/questions/53757323/how-to-post-data-from-reactjs-to-nodejs-express-api    
