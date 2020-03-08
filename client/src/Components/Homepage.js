@@ -1,32 +1,53 @@
 import React, { Component } from 'react';
 import '../App.css';
+import CreateProfile from './CreateProfile';
+import Login from './Login';
+import Button from '@material-ui/core/Button';
+
 
 class Homepage extends Component {
-    constructor (props){
+    constructor (props) {
         super (props);
         this.state = {
-            createProfile: false,
             login: false,
+            createProfile: false,
         }
-        this.handleClick = this.handleClick.bind(this);
+        this.handleClickLogin = this.handleClickLogin.bind(this);
+        this.handleClickCreate = this.handleClickCreate.bind(this);
     }
 
-    handleClick(){
-        this.setState(state => ({stressed:!state.stressed}));
+    handleClickLogin() {
+        this.setState(state => ({login: !state.login}));
+    }
+    handleClickCreate() {
+        this.setState(() => ({createProfile: true}));
     }
     
     render() {
-        return (
-            <div >
-                <button onClick={this.handleClick} type = "submit">{this.state.stressed? 'Not Stressed':'Stressed'}?</button>
-
-                <Typography variant="h6" gutterBottom>
-                    <p style={{fontFamily: 'Montserrat', color: 'white'}}> You are currently... </p>
-                </Typography>
-                <h3 className="stressed" style={{fontFamily: 'Montserrat', backgroundColor: this.state.stressed? 'rgba(240,91,28,0.3)':'rgba(116, 169, 255, 0.3)'}}>{this.state.stressed? 'Stressed':'Not Stressed'}</h3>
-            </div>
-        )
+        if (!this.state.login && !this.state.createProfile) {
+            return (
+                <div >
+                    <Button variant="contained" color="primary" onClick={this.handleClickLogin} type = "submit">Login</Button>
+                    <Button variant="outlined" color="primary" onClick={this.handleClickCreate} type = "submit">Create Profile</Button>
+                </div>
+            );
+        }
+        else if (this.state.login) {
+            return (
+                <div>
+                    <Button variant="outlined" onClick={this.handleClickLogin} type = "submit">Logout</Button>
+                    <Login />   
+                </div>
+            );
+        }
+        else if (this.state.createProfile) {
+            return (
+                <CreateProfile />
+            );
+        }
     }
 };
 
+
 export default Homepage;
+
