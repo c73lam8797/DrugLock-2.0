@@ -3,6 +3,7 @@ import '../App.css';
 import CreateProfile from './CreateProfile';
 import Login from './Login';
 import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
 
 
 class Homepage extends Component {
@@ -20,29 +21,38 @@ class Homepage extends Component {
         this.setState(state => ({login: !state.login}));
     }
     handleClickCreate() {
-        this.setState(() => ({createProfile: true}));
+        this.setState(state => ({createProfile: !state.createProfile}));
     }
-    
+        
     render() {
         if (!this.state.login && !this.state.createProfile) {
             return (
-                <div >
-                    <Button variant="contained" color="primary" onClick={this.handleClickLogin} type = "submit">Login</Button>
-                    <Button variant="outlined" color="primary" onClick={this.handleClickCreate} type = "submit">Create Profile</Button>
+                <div style={{display: "flex", justifyContent: "center", position: "relative", top: 50   }}>
+                    <Paper elevation={3} style={{padding:20, minWidth:150, maxWidth:500, minHeight:300, maxHeight:600}}>
+                    <h1 style={{fontFamily: 'Roboto, sans-serif' }}> Welcome to DrugLock 2.0. </h1>
+
+                        <div style={{display: "flex", justifyContent: "center"}}>
+                            <Button variant="contained" color="primary" onClick={this.handleClickLogin} type = "submit">Login</Button>
+                            <Button variant="outlined" color="primary" onClick={this.handleClickCreate} type = "submit">Create Profile</Button>
+                        </div>
+                    </Paper>
                 </div>
             );
         }
         else if (this.state.login) {
             return (
                 <div>
-                    <Button variant="outlined" onClick={this.handleClickLogin} type = "submit">Logout</Button>
+                    <Button variant="outlined" onClick={this.handleClickLogin} type = "submit">Back To Homepage</Button>
                     <Login />   
                 </div>
             );
         }
         else if (this.state.createProfile) {
             return (
-                <CreateProfile />
+                <div>
+                    <Button variant="outlined" onClick={this.handleClickCreate} type = "submit">Back To Homepage</Button>
+                    <CreateProfile />
+                </div>
             );
         }
     }

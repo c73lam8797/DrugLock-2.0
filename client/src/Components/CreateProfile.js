@@ -5,14 +5,42 @@ import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 
 class CreateProfile extends Component {
-    // constructor (props){
-    //     super (props);
-    //     this.age = 
-    //     this.handleClick = this.handleClick.bind(this);
-    // }
+    constructor (props){
+        super (props);
+        this.state = {
+            employeeID: "",
+            lastName : "",
+            firstName : "",
+            occupation : "",
+            password: "",
+        };
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleChangeID = this.handleChangeID.bind(this);
+        this.handleChangeLast = this.handleChangeLast.bind(this);
+        this.handleChangeFirst = this.handleChangeFirst.bind(this);
+        this.handleChangeOcc = this.handleChangeOcc.bind(this);
+        this.handleChangePass = this.handleChangePass.bind(this);
+    }
 
+    handleChangeID(event){
+        this.setState({employeeID: event.target.value});
+    }
+    handleChangeLast(event){
+        this.setState({lastName: event.target.value});
+    }
+    handleChangeFirst(event){
+        this.setState({firstName: event.target.value});
+    }
+    handleChangeOcc(event){
+        this.setState({occupation: event.target.value});
+    }
+    handleChangePass(event){
+        this.setState({password: event.target.value});
+    }
 
     handleSubmit() {
+        
+
     //     // Call our fetch function below once the component mounts
     //   this.callBackendAPI()
     //     .then(res => this.setState({ data: res.express }))
@@ -35,24 +63,24 @@ class CreateProfile extends Component {
                 <h1>Create an Employee Profile</h1>
                 <form onSubmit={this.handleSubmit}>
                     <p> Enter Your Employee ID: </p>
-                    <TextField id="outlined-basic" label="Employee ID" variant="outlined" required/> <br />
+                    <TextField onChange={this.handleChangeID} value={this.state.employeeID} id="outlined-basic" label="Employee ID" variant="outlined" required/> <br />
 
                     <p> Enter Your Last Name: </p>
-                    <TextField id="outlined-basic" label="Last Name" variant="outlined" required/> <br />
+                    <TextField onChange={this.handleChangeLast} value={this.state.lastName} id="outlined-basic" label="Last Name" variant="outlined" required/> <br />
 
                     <p> Enter Your First Name: </p>
-                    <TextField id="outlined-basic" label="First Name" variant="outlined" required/> <br />
+                    <TextField onChange={this.handleChangeFirst} value={this.state.firstName} id="outlined-basic" label="First Name" variant="outlined" required/> <br />
 
                     <p> You are a: </p>
-                    <select style={{fontFamily: 'Montserrat'}} required> 
+                    <select onChange={this.handleChangeOcc} value={this.state.occupation} required> 
                         <option>          </option>
                         <option>Pharmacist</option>
                         <option>Nurse     </option>
-                    </select> 
-                    <br />
-                    <br />
-                    <br />
-                    <br />
+                    </select> <br />
+
+                    <p> Enter a Password: </p>
+                    <TextField type="password" onChange={this.handleChangePass} value={this.state.password} id="outlined-basic" label="Password" variant="outlined" required/> <br />
+                    <br /><br /><br /><br />
                 </form>
                 <Button variant="contained" type="submit">Submit Profile</Button>
             </Paper>
