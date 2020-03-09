@@ -10,6 +10,8 @@ class Login extends Component {
         this.state = {
             employeeID: "",
             password: "",
+
+            isValid: false
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChangeID = this.handleChangeID.bind(this);
@@ -24,24 +26,35 @@ class Login extends Component {
     }
 
     handleSubmit() {
-        
+        this.callBackendAPI()
+        .then (res => {
+            console.log(res.data); //for debugging
+            this.setState({isValid: res.data});
+            console.log(this.state.isValid); //for debugging
+        })
+        .catch(err => console.error('There was a problem.', err));
+    }   
 
-    //     // Call our fetch function below once the component mounts
-    //   this.callBackendAPI()
-    //     .then(res => this.setState({ data: res.express }))
-    //     .catch(err => console.log(err));
+    callBackendAPI = async() => {
+        const response = await fetch('http://localhost:5000/login', {
+            method: 'POST',
+            body: JSON.stringify({
+                ID: this.state.employeeID,
+                Password: this.state.password
+            }),
+            headers: {
+                'Content-type': 'application/json',
+                'Accept' : 'application/json',
+                'Access-Control-Request-Method' : 'POST'
+            } 
+        })
+
+        const body = await response.json();
+        console.log("is this even running"); //for debugging
+        console.log(body); //for debugging 
+
+        return body;
     }
-    //   // Fetches our GET route from the Express server. (Note the route we are fetching matches the GET route from server.js
-    // callBackendAPI = async () => {
-    //   const response = await fetch('http://localhost:5000/express_backend');
-    //   const body = await response.json();
-  
-    //   if (response.status !== 200) {
-    //     throw Error(body.message) 
-    //   }
-    //   return body;
-    // };
-
     render() {
         return (
             <Paper elevation={3} style={{fontFamily: 'Montserrat', padding:20, minWidth:150, maxWidth:500, minHeight:300, maxHeight:600}}>
@@ -53,8 +66,8 @@ class Login extends Component {
                     <p> Enter Your Password: </p>
                     <TextField type="password" onChange={this.handleChangePass} value={this.state.password} id="outlined-basic" label="Password" variant="outlined" required/> <br />
                     <br /><br /><br /><br />
+                    <Button variant="contained" type="submit">Login</Button>
                 </form>
-                <Button variant="contained" type="submit">Login</Button>
             </Paper>
         )
     }

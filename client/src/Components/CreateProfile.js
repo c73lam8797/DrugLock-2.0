@@ -26,40 +26,61 @@ class CreateProfile extends Component {
 
     handleChangeID(event){
         this.setState({employeeID: event.target.value});
-        console.log(this.state.employeeID);
     }
     handleChangeLast(event){
         this.setState({lastName: event.target.value});
-        console.log(this.state.lastName);
     }
     handleChangeFirst(event){
         this.setState({firstName: event.target.value});
-        console.log(this.state.firstName);
     }
     handleChangeOcc(event){
         this.setState({occupation: event.target.value});
-        console.log(this.state.occupation);
     }
     handleChangePass(event){
         this.setState({password: event.target.value});
-        console.log(this.state.password);
     }
 
     handleSubmit() {
-        fetch("http://localhost:5000/createprofile", {
+        this.callBackendAPI()
+        .then(res => console.log(res.text()))
+        .catch(err => console.error(err) ); 
+
+        // axios.post('http://localhost:5000/createprofile',{
+        //     headers: {
+        //         'Content-type': 'application/json'
+        //     },  
+        //     data: {
+        //             ID: this.state.employeeID,
+        //             LastName: this.state.lastName,
+        //             FirstName: this.state.firstName,
+        //             Occ: this.state.occupation,
+        //             Pass: this.state.password
+        //         }
+        //     })
+        // .then(res => console.log(res))
+        // .catch(err => console.log(err) ); 
+    }
+
+    callBackendAPI = async () => {
+        const response = await fetch("http://localhost:5000/createprofile", {
             method: 'POST',
             body:  JSON.stringify(  
-                    {ID: `${this.state.employeeID}`,
-                    LastName: `${this.state.lastName}`,
-                    FirstName: `${this.state.firstName}`,
-                    Occ: `${this.state.occupation}`,
-                    Pass: `${this.state.password}`}),
+                    {ID: this.state.employeeID,
+                    LastName: this.state.lastName,
+                    FirstName: this.state.firstName,
+                    Occ: this.state.occupation,
+                    Pass: this.state.password}),
             headers: {
-                'Content-type': 'application/json'
+                'Accept' : 'text/plain',
+                'Content-type': 'application/json',
+                'Access-Control-Allow-Origin' : 'http://localhost:3000',
                 },    
             })
-        .then(res => res.json())
-        .catch(err => console.log(err) ); 
+        
+            if (response.status!== 200) {
+                throw Error("error")
+            }
+            return response;
     }
 
     render() {
@@ -86,8 +107,8 @@ class CreateProfile extends Component {
                     <p> Enter a Password: </p>
                     <TextField type="password" value={this.state.password} onChange={this.handleChangePass} id="outlined-basic" label="Password" variant="outlined" required/> <br />
                     <br /><br /><br /><br />
+                    <Button variant="contained" type="submit" onClick={this.handleSubmit}>Submit Profile</Button>
                 </form>
-                <Button variant="contained" type="submit" onClick={this.handleSubmit}>Submit Profile</Button>
             </Paper>
         )
     }
