@@ -23,6 +23,13 @@ class Homepage extends Component {
     handleClickCreate() {
         this.setState(state => ({createProfile: !state.createProfile}));
     }
+
+    //update the local array everytime the homepage is loaded
+    componentDidMount(){
+        fetch("http://localhost:5000/getdata")
+        .then (res => console.log(res.text()))
+        .catch (err => console.error(err));
+    }
         
     render() {
         if (!this.state.login && !this.state.createProfile) {

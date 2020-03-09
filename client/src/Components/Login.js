@@ -3,6 +3,8 @@ import '../App.css';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
+require('es6-promise').polyfill();
+require('isomorphic-fetch');
 
 class Login extends Component {
     constructor (props){
@@ -28,11 +30,12 @@ class Login extends Component {
     handleSubmit() {
         this.callBackendAPI()
         .then (res => {
-            console.log(res.data); //for debugging
             this.setState({isValid: res.data});
-            console.log(this.state.isValid); //for debugging
+            console.log("Valid login: ", this.state.isValid); //for debugging
         })
-        .catch(err => console.error('There was a problem.', err));
+        .catch(err => {
+            console.error('There was a problem.', err);
+        });
     }   
 
     callBackendAPI = async() => {
@@ -45,16 +48,17 @@ class Login extends Component {
             headers: {
                 'Content-type': 'application/json',
                 'Accept' : 'application/json',
-                'Access-Control-Request-Method' : 'POST'
+                'Access-Control-Request-Method' : 'POST',               
             } 
         })
 
         const body = await response.json();
-        console.log("is this even running"); //for debugging
-        console.log(body); //for debugging 
-
+        if (response.status !== 200) {
+            throw Error(body.message) 
+        }
         return body;
     }
+
     render() {
         return (
             <Paper elevation={3} style={{fontFamily: 'Montserrat', padding:20, minWidth:150, maxWidth:500, minHeight:300, maxHeight:600}}>

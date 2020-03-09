@@ -14,6 +14,7 @@ class CreateProfile extends Component {
             occupation : "",
             password: "",
 
+            alreadyExists: false,
             CreateProfile: false
         };
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -42,45 +43,34 @@ class CreateProfile extends Component {
 
     handleSubmit() {
         this.callBackendAPI()
-        .then(res => console.log(res.text()))
-        .catch(err => console.error(err) ); 
-
-        // axios.post('http://localhost:5000/createprofile',{
-        //     headers: {
-        //         'Content-type': 'application/json'
-        //     },  
-        //     data: {
-        //             ID: this.state.employeeID,
-        //             LastName: this.state.lastName,
-        //             FirstName: this.state.firstName,
-        //             Occ: this.state.occupation,
-        //             Pass: this.state.password
-        //         }
-        //     })
-        // .then(res => console.log(res))
-        // .catch(err => console.log(err) ); 
+        .then(res => {
+            console.log("Employee already found: ", res.data)
+            this.setState({alreadyExists: res.data});
+        })
+        .catch(err => console.error(err)); 
     }
 
     callBackendAPI = async () => {
         const response = await fetch("http://localhost:5000/createprofile", {
             method: 'POST',
-            body:  JSON.stringify(  
-                    {ID: this.state.employeeID,
+            body:  JSON.stringify({ 
+                    ID: this.state.employeeID,
                     LastName: this.state.lastName,
                     FirstName: this.state.firstName,
                     Occ: this.state.occupation,
-                    Pass: this.state.password}),
+                    Pass: this.state.password
+            }),
             headers: {
-                'Accept' : 'text/plain',
                 'Content-type': 'application/json',
-                'Access-Control-Allow-Origin' : 'http://localhost:3000',
-                },    
-            })
-        
-            if (response.status!== 200) {
-                throw Error("error")
+                'Accept' : 'application/json',
+                'Access-Control-Request-Method' : 'POST'
             }
-            return response;
+        })
+        const body = await response.json();
+        if (response.status!== 200) {
+            throw Error(body.message)
+        }
+        return body;
     }
 
     render() {
