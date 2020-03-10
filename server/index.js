@@ -1,5 +1,3 @@
-require('es6-promise').polyfill();
-require('isomorphic-fetch');
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
@@ -16,7 +14,7 @@ require("firebase/firestore");
 
 var firebaseConfig = config.firebaseConfig
   
-  // Initialize Firebase
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
 // Initilize Cloud Firestore
@@ -29,19 +27,22 @@ admin.initializeApp({
 });
 var db = admin.firestore();
 
+//cors and bodyparser configs
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin     : 'http://localhost:3000',
     credentials: 'include',
-    'Access-Control-Allow-Headers': 'Content-type, Accept, Access-Control-Request-Method',
-    'Access-Control-Allow-Origin' : 'http://localhost:3000',
-    'Access-Control-Allow-Credentials' : true,
 }))
 app.use(bodyParser.json())
 
+// ---------- <<< END OF CONFIGURATION >>>-------------
+
+
+//storing data from firebase into a local array
 var employees = []; 
-function getDataFromDB(){
-    db.collection("Employees").get()
+async function getDataFromDB(){
+    // let response = false;
+    let response = await db.collection("Employees").get()
     .then(snapshot => {
         snapshot.forEach(doc => {
             employees.push({
@@ -49,16 +50,26 @@ function getDataFromDB(){
             })
         })
     })
+    .then(() => {
+        //for debugging
+        // for (let i =0; i<employees.length; i++){
+        //     console.log(employees[i]["ID"]);
+        // }
+        return true; //returns true when data is done being loaded
+    })
     .catch(err=> {
         console.error("trouble getting data: ", err);
     })
-}
 
+    if (response) {return response;}
+}
 
 //fetching data from database and storing it in a local array;
 app.get('/getdata', (req,res) => {
-    getDataFromDB();
-    res.send("Data successfully retreieved.");
+  getDataFromDB()
+  .then(isLoaded => {
+        res.send ({data: isLoaded}); 
+  });
 })
 
 //writing user input into firebase
@@ -68,38 +79,32 @@ app.post('/createprofile', (req, res) => {
 
     //find to see if the employee exists 
     for (let i =0; i< employees.length; i++){
-        if (employees[i]["ID"] == employeeID) {
-            employeeFound = true;
-        }
+        if (employees[i]["ID"] == employeeID) {employeeFound = true;}
     }
     
     //if already found, don't make a new profile
     if (employeeFound){
-        //notify that the employee exists 
-        res.send({data: true})
+        res.send({data: true}) //notify that the employee exists 
     }
     //else we update our profile
     else { 
-        const firstName = req.body.FirstName;
-        const lastName = req.body.LastName;
+        const firstName  = req.body.FirstName;
+        const lastName   = req.body.LastName;
         const occupation = req.body.Occ;
-        const password = req.body.Pass;
-
+        const password   = req.body.Pass;
+        
+        //updating db values 
         db.collection("Employees").doc(employeeID).set({
-            ID: employeeID,
-            FirstName: firstName,
-            LastName: lastName,
-            Occupation: occupation,
-            Password: password
+            ID          : employeeID,
+            FirstName   : firstName,
+            LastName    : lastName,
+            Occupation  : occupation,
+            Password    : password
         })
         .then(function(){
             console.log("Employee successfully added!");
-
-            //we notify that the employee does not exists
-            res.send({data: false});
-
-            //updating local employee array
-            getDataFromDB(); 
+            res.send({data: false}); //we notify that the employee does not exists
+            getDataFromDB(); //updating local employee array
         })
         .catch(function(error) {
             console.error(error);
@@ -109,11 +114,13 @@ app.post('/createprofile', (req, res) => {
 
 //fetching employee information from array 
 app.post('/login', (req ,res) => {
-    const sentID = req.body.ID;
+    const sentID       = req.body.ID;
     const sentPassword = req.body.Password;
 
-    var employeeFound = false; 
-    var validPass = false;
+    var employeeFound  = false; 
+    var validPass      = false;
+    var FN             = "";
+    var LN             = "";
     
     //searching for the employee in the array 
     for (let i =0; i< employees.length; i++){
@@ -121,15 +128,26 @@ app.post('/login', (req ,res) => {
         if (employees[i]["ID"] == sentID) {
             employeeFound = true;
             validPass = (employees[i]["Password"] == sentPassword);
+            FN = employees[i]["FirstName"];
+            LN = employees[i]["LastName"];
         }
     }
 
-    //log if employee exists
-    if (!employeeFound) {console.log("Employee not found!")}
-
-    //return whether or not the login was valid
-    res.send ({data: validPass});
+    if (!employeeFound) {
+        console.log("Employee not found!") //log if employee exists 
+        res.send ({data: false})  //returns false if employee doesn't exist
+    } 
+    res.send ({//return whether or not the login was valid, along with employee info if it exists
+        data: validPass,
+        firstName: FN,
+        lastName: LN,
+    }); 
 })
+
+app.listen(apiPort, () => console.log(`Server running on port ${apiPort}`))
+
+
+//----- <<<<OLD CODE FOR REFERENCE>>>> ----
 
 //db.collection takes too long to retrieve data, and throws too many errors
 
@@ -162,7 +180,7 @@ app.post('/login', (req ,res) => {
 
 
 
-app.listen(apiPort, () => console.log(`Server running on port ${apiPort}`))
+
 
 
 

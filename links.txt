@@ -8,3 +8,6 @@ https://medium.com/feedflood/write-to-cloud-firestore-using-node-js-server-c8485
 https://reactjs.org/docs/forms.html
 https://medium.com/@maison.moa/create-a-simple-weather-app-using-node-js-express-and-react-54105094647a
 https://stackoverflow.com/questions/53757323/how-to-post-data-from-reactjs-to-nodejs-express-api    
+
+https://reactjs.org/docs/conditional-rendering.html
+https://reactjs.org/docs/components-and-props.html  
