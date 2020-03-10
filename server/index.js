@@ -51,10 +51,6 @@ async function getDataFromDB(){
         })
     })
     .then(() => {
-        //for debugging
-        // for (let i =0; i<employees.length; i++){
-        //     console.log(employees[i]["ID"]);
-        // }
         return true; //returns true when data is done being loaded
     })
     .catch(err=> {
@@ -121,6 +117,7 @@ app.post('/login', (req ,res) => {
     var validPass      = false;
     var FN             = "";
     var LN             = "";
+    var OCC            = "";
     
     //searching for the employee in the array 
     for (let i =0; i< employees.length; i++){
@@ -128,8 +125,9 @@ app.post('/login', (req ,res) => {
         if (employees[i]["ID"] == sentID) {
             employeeFound = true;
             validPass = (employees[i]["Password"] == sentPassword);
-            FN = employees[i]["FirstName"];
-            LN = employees[i]["LastName"];
+            FN  = employees[i]["FirstName"];
+            LN  = employees[i]["LastName"];
+            OCC = employees[i]["Occupation"];
         }
     }
 
@@ -140,7 +138,8 @@ app.post('/login', (req ,res) => {
     res.send ({//return whether or not the login was valid, along with employee info if it exists
         data: validPass,
         firstName: FN,
-        lastName: LN,
+        lastName : LN,
+        occupation: OCC,
     }); 
 })
 
