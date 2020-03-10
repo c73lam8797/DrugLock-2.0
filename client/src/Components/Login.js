@@ -3,6 +3,8 @@ import '../App.css';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
+import Pharmacist from './Pharmacist';
+import Nurse from './Nurse';
 
 class Login extends Component {
     constructor (props){
@@ -54,7 +56,7 @@ class Login extends Component {
             headers: {
                 'Content-type': 'application/json',
                 'Accept' : 'application/json',
-                'Access-Control-Request-Method' : 'POST',               
+                'Access-Control-Request-Method' : 'application/postscript',               
             } 
         })
         const body = await response.json();
@@ -62,6 +64,18 @@ class Login extends Component {
             throw Error(body.message) 
         }
         return body;
+    }
+
+    pharmOrNurse(){
+        if (this.state.returnedOCC === "Pharmacist") {
+            return <Pharmacist />
+        }
+        else if (this.state.returnedOCC === "Nurse") {
+            return <Nurse />
+        }
+        else { //when returnedOCC is an empty string 
+            //do nothing
+        }
     }
 
 
@@ -93,12 +107,14 @@ class Login extends Component {
         }
         //on valid login, return a new page, and the button is now "logout"
         else {
+            let occ = this.pharmOrNurse();
             return (
                 <div style={{fontFamily: 'Montserrat'}}>
                     <Button variant="outlined" onClick={this.props.loginAndOut} type = "submit">Logout</Button>
                     <h1>Welcome {this.state.returnedFN} {this.state.returnedLN}!</h1>
                     <h5>Username: {this.state.employeeID}</h5>
                     <h5>Occupation: {this.state.returnedOCC}</h5>
+                    {occ}
                 </div>
             )
         }

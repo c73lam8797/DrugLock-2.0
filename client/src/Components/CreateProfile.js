@@ -59,7 +59,7 @@ class CreateProfile extends Component {
             headers: {
                 'Content-type': 'application/json',
                 'Accept' : 'application/json',
-                'Access-Control-Request-Method' : 'POST'
+                'Access-Control-Request-Method' : 'application/postscript'
             }
         })
         const body = await response.json();
