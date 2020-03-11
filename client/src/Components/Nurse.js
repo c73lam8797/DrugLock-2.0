@@ -74,7 +74,7 @@ class Nurse extends Component {
         if (this.state.attemptToSubmit) { emptyForm = <h6>Please fill in all fields before submitting.</h6>}
         return (
             <Paper elevation={3} style={{fontFamily: 'Montserrat', padding:20, minWidth:150, maxWidth:500, minHeight:300, maxHeight:600}}>
-                <h1>Create an Employee Profile</h1>
+                <h1>Select which drug you would like to retrieve.</h1>
                 {/* <form>
                     <p> Enter Your Employee ID: </p>
                     <TextField onChange={this.handleChangeID} value={this.state.employeeID} id="outlined-basic" label="Employee ID" variant="outlined" required/> <br />

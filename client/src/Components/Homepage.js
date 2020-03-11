@@ -21,21 +21,6 @@ class Homepage extends Component {
     handleClickLogin() { this.setState(state => ({login: !state.login})); }
     handleClickCreate() { this.setState(state => ({createProfile: !state.createProfile})); }
 
-    //update the local array everytime the homepage is loaded
-    // componentDidMount(){
-    //     fetch("http://localhost:5000/getdata", {
-    //         headers: {'Accept' : 'application/json'}
-    //     })
-    //     .then (res =>res.json())
-    //     .then (info => { 
-    //         //will return true when a response is received from fetch
-    //         //aka. the state changes once the data is done being retrieved from the database
-    //         this.setState({dataLoaded: info.data}); 
-    //         console.log("Data successfully retrieved:", info.data);
-    //     })
-    //     .catch (err => console.error(err));
-    // }
-
         
     render() {
         let loginButton, createProfileButton, welcomeMessage;
@@ -48,9 +33,9 @@ class Homepage extends Component {
         // }
         //once data is loaded, buttons are activated
         
-            welcomeMessage = <h1 style={{fontFamily: 'Roboto, sans-serif' }}> Welcome to DrugLock 2.0. </h1>
-            loginButton = <Button variant="contained" color="primary" onClick={this.handleClickLogin} type = "submit" >Login</Button>
-            createProfileButton = <Button variant="outlined"  color="primary" onClick={this.handleClickCreate} type = "submit">Create Profile</Button>
+        welcomeMessage = <h1 style={{fontFamily: 'Roboto, sans-serif' }}> Welcome to DrugLock 2.0. </h1>
+        loginButton = <Button variant="contained" color="primary" onClick={this.handleClickLogin} type = "submit" >Login</Button>
+        createProfileButton = <Button variant="outlined"  color="primary" onClick={this.handleClickCreate} type = "submit">Create Profile</Button>
         
         
         //if neither button is pressed, display the home screen
