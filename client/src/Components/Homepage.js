@@ -57,8 +57,7 @@ class Homepage extends Component {
         else if (this.state.createProfile) {
             return (
                 <div>
-                    <Button variant="outlined" onClick={this.handleClickCreate} type = "submit">Back To Homepage</Button>
-                    <CreateProfile />
+                    <CreateProfile backToPage = {this.handleClickCreate} />
                 </div>
             );
         }

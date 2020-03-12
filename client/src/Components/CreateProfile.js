@@ -15,7 +15,6 @@ class CreateProfile extends Component {
             password: "",
 
             alreadyExists: false,
-            CreateProfile: false,
             attemptToSubmit: false,
             successfulSubmit: false,
         };
@@ -32,7 +31,7 @@ class CreateProfile extends Component {
     handleChangeFirst(event){ this.setState({firstName:  event.target.value}); }
     handleChangeOcc  (event){ this.setState({occupation: event.target.value}); }
     handleChangePass (event){ this.setState({password:   event.target.value}); }
-
+    
     handleSubmit(event) {
         //if the form is not empty, we post to the backend
         if (this.state.employeeID != "" && this.state.lastName != ""
@@ -44,13 +43,14 @@ class CreateProfile extends Component {
                 this.setState({alreadyExists: res.data});
 
                 if (!this.state.alreadyExists) { //if employee doesn't already exist, submission is successful
-                    this.setState ({successfulSubmit: true}); 
+                    this.setState ({successfulSubmit: true});
+                    this.setState ({attemptToSubmit: true}); 
                 }
             })
             .catch(err => console.error(err)); 
         }
         //otherwise, there was an attempt to submit data
-        else {this.setState ({attemptToSubmit: true});}
+        else {this.setState ({attemptToSubmit: true}); this.setState({successfulSubmit: false})}
     }
 
     callBackendAPI = async () => {
@@ -78,10 +78,12 @@ class CreateProfile extends Component {
 
     render() {
         let emptyForm;
-        if (this.state.attemptToSubmit) { emptyForm = <h6>Please fill in all fields before submitting.</h6>}
-        else if (this.state.successfulSubmit) { emptyForm = <h5>Profile successfully created.</h5>}
+        if (this.state.successfulSubmit && this.state.attemptToSubmit) { emptyForm = <h5>Profile successfully created.</h5>}
+        else if (this.state.attemptToSubmit && !this.state.successfulSubmit) { emptyForm = <h6>Please fill in all fields before submitting.</h6>}
+
         return (
-            <Paper elevation={3} style={{fontFamily: 'Montserrat', padding:20, minWidth:150, maxWidth:500, minHeight:300, maxHeight:600}}>
+            <Paper elevation={3} style={{fontFamily: 'Montserrat', padding:20, minWidth:150, maxWidth:500, minHeight:"95vh", overflow: "initial"}}>
+                <Button variant="outlined" onClick={this.props.backToPage} type = "submit">Back To Homepage</Button>
                 <h1>Create an Employee Profile</h1>
                 <form>
                     <p> Enter Your Employee ID: </p>
@@ -102,8 +104,8 @@ class CreateProfile extends Component {
 
                     <p> Enter a Password: </p>
                     <TextField type="password" value={this.state.password} onChange={this.handleChangePass} id="outlined-basic" label="Password" variant="outlined" required/> <br />
-                    <br /><br /><br /><br />
                     {emptyForm}
+                    <br />
                     <Button variant="contained" type="submit" onClick={this.handleSubmit}>Submit Profile</Button>
                 </form>
             </Paper>

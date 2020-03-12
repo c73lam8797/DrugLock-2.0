@@ -136,7 +136,7 @@ class DrugForm extends Component {
                     <TextField onChange={this.handleChangeDosage} value={this.state.dosage || ""} label="Dosage" variant="outlined" required/> <br />
 
                     <p> Enter the Administration Instructions: </p>
-                    <TextField onChange={this.handleChangeInstructions} value={this.state.instructions || ""} label="Instructions" variant="outlined" required/> <br />
+                    <TextField onChange={this.handleChangeInstructions} value={this.state.instructions || ""} label="Instructions" variant="outlined" style={{width: 500}} rows={3} required multiline/> <br />
 
                     <p> What is the Risk? </p>
                     <select onChange={this.handleChangeRisk} value={this.state.risk || ""} required> 

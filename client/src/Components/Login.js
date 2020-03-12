@@ -5,6 +5,24 @@ import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import Pharmacist from './Pharmacist';
 import Nurse from './Nurse';
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+
+const theme = createMuiTheme({
+    overrides: {
+      // Style sheet name ⚛️
+      MuiPaper: {
+        // Name of the rule
+        root: {
+          // Some CSS
+          display: "inline-block",
+          minWidth: 300,
+          minHeight: "95vh",
+          padding: 20,
+          overflow: "initial" 
+        },
+      },
+    },
+  });
 
 class Login extends Component {
     constructor (props){
@@ -20,6 +38,7 @@ class Login extends Component {
             returnedLN : "",
             returnedOCC: "",
         };
+        
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChangeID = this.handleChangeID.bind(this);
         this.handleChangePass = this.handleChangePass.bind(this);
@@ -96,20 +115,22 @@ class Login extends Component {
         //if there is no valid login (so on a wrong attempt, and by default), load the login page
         if (!this.state.isValid){
             return (
-                <Paper elevation={3} style={{fontFamily: 'Montserrat', padding:20, minWidth:150, maxWidth:500, minHeight:300, maxHeight:600}}>
-                    <Button variant="outlined" onClick={this.props.loginAndOut} type = "submit">Back to Homepage</Button>
-                    <h1>Login</h1>
-                    {retry}
-                    <form onSubmit={this.handleSubmit}>
-                        <p> Enter Your Employee ID: </p>
-                        <TextField onChange={this.handleChangeID} value={this.state.employeeID} label="Employee ID" variant="outlined" required/> <br />
+                <ThemeProvider theme={theme}>
+                    <Paper elevation={3} style={{fontFamily: 'Montserrat'}}>
+                        <Button variant="outlined" onClick={this.props.loginAndOut} type = "submit" >Back to Homepage</Button>
+                        <h1>Login</h1>
+                        {retry}
+                        <form onSubmit={this.handleSubmit}>
+                            <p> Enter Your Employee ID: </p>
+                            <TextField onChange={this.handleChangeID} value={this.state.employeeID} label="Employee ID" variant="outlined" required/> <br />
 
-                        <p> Enter Your Password: </p>
-                        <TextField type="password" onChange={this.handleChangePass} value={this.state.password} label="Password" variant="outlined" required/> <br />
-                        <br /><br /><br /><br />
-                        <Button variant="contained" type="submit">Login</Button>
-                    </form>
-                </Paper>
+                            <p> Enter Your Password: </p>
+                            <TextField type="password" onChange={this.handleChangePass} value={this.state.password} label="Password" variant="outlined" required/> <br />
+                            <br /><br /><br /><br />
+                            <Button variant="contained" type="submit">Login</Button>
+                        </form>
+                    </Paper>
+                </ThemeProvider>
             )
         }
         //on valid login, return a new page, and the button is now "logout"
@@ -117,7 +138,7 @@ class Login extends Component {
             let occ = this.pharmOrNurse();
             return (
                 <div style={{fontFamily: 'Montserrat'}}>
-                    <Button variant="outlined" onClick={this.props.loginAndOut} type = "submit">Logout</Button>
+                    <Button variant="outlined" onClick={this.props.loginAndOut} type = "submit" style={{background: 'rgb(196, 224, 255)'}}>Logout</Button>
                     <h1>Welcome {this.state.returnedFN} {this.state.returnedLN}!</h1>
                     <h5>Username: {this.state.employeeID}</h5>
                     <h5>Occupation: {this.state.returnedOCC}</h5>
