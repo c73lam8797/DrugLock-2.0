@@ -39,15 +39,16 @@ app.use(cors({
 app.post('/newdrug', (req, res) => {
     const drugID = req.body.ID;
     var drugFound = false;
+    var wantToEdit = req.body.Edit;
 
     db.collection("Drugs").doc(drugID).get()
     .then (data => {
-        //if data exists for that drug
-        if (data.exists){ 
+        //if data exists for that drug already
+        if (data.exists && wantToEdit == false){ 
             drugFound = true; 
             res.send({data: drugFound}); //send a response that the drug was already found
         }
-        //if drug doesnt already exist
+        //if drug doesnt already exist or if the person wants to edit
         else { 
             //write in the new data
             const drugName = req.body.DrugName;
@@ -75,6 +76,33 @@ app.post('/newdrug', (req, res) => {
         }
     })
 });
+
+
+app.put('/editdrug', (req, res) => {
+    const drugID = req.body.ID;
+    const drugName = req.body.DrugName;
+    const dosage = req.body.Dosage;
+    const instructions = req.body.Instructions;
+    const risk = req.body.Risk;
+    const effect = req.body.Effect;
+
+    db.collection("Drugs").doc(drugID).set({
+        ID: drugID,
+        DrugName: drugName,
+        Dosage: dosage,
+        Instructions: instructions,
+        Risk: risk,
+        Effect: effect,
+    })
+    .then(function(){
+        res.send({data: true})
+    })
+    .catch(function(error) {
+        console.error(error);
+    })
+});
+
+
 app.get('/getdrugs', (req, res) => {
     var drugData = {};
     db.collection("Drugs").get()

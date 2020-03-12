@@ -1,104 +1,99 @@
 import React, { Component } from 'react';
 import '../App.css';
-import TextField from '@material-ui/core/TextField';
-import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
 
 class Nurse extends Component {
     constructor (props){
         super (props);
         this.state = {
-            // employeeID: "",
-            // lastName : "",
-            // firstName : "",
-            // occupation : "",
-            // password: "",
-
-            // alreadyExists: false,
-            // CreateProfile: false,
-            // attemptToSubmit: false
+            drugDataKey: [],
+            drugDataValue: [],
+            // drugData: {},
         };
-        // this.handleSubmit      = this.handleSubmit.bind(this);
-        // this.handleChangeID    = this.handleChangeID.bind(this);
-        // this.handleChangeLast  = this.handleChangeLast.bind(this);
-        // this.handleChangeFirst = this.handleChangeFirst.bind(this);
-        // this.handleChangeOcc   = this.handleChangeOcc.bind(this);
-        // this.handleChangePass  = this.handleChangePass.bind(this);
+        this.display = this.display.bind(this);
+    }
+    
+    componentWillMount(){
+        this.callBackendAPI()
+        .then (res => { 
+            this.setState({drugDataKey: [...Object.keys(res.data)]});  //storing drugIDs into state
+            this.setState({drugDataValue: [...Object.values(res.data)]});// store the properties into state 
+
+            // this.setState({drugData: {...res.data}});
+            console.log("these are the keys: ", this.state.drugDataKey);
+            console.log("these are the values: ", this.state.drugDataValue);
+        })
+        .catch (err => console.error(err))
+    }   
+
+    callBackendAPI = async () => {
+        const response = await fetch("http://localhost:5000/getdrugs", {
+            method: 'GET',
+            headers: {
+                'Accept' : 'application/json',
+            }
+        })
+        const body = await response.json();
+        if (response.status!== 200) {
+            throw Error(body.message)
+        }
+        return body;
     }
 
-    // handleChangeID   (event){ this.setState({employeeID: event.target.value}); }
-    // handleChangeLast (event){ this.setState({lastName:   event.target.value}); }
-    // handleChangeFirst(event){ this.setState({firstName:  event.target.value}); }
-    // handleChangeOcc  (event){ this.setState({occupation: event.target.value}); }
-    // handleChangePass (event){ this.setState({password:   event.target.value}); }
 
-    // handleSubmit(event) {
-    //     if (this.state.employeeID != "" && this.state.lastName != ""
-    //     && this.state.firstName != "" && this.state.occupation != "" && this.state.password != ""){
-    //         event.preventDefault();
-    //         this.callBackendAPI()
-    //         .then(res => {
-    //             console.log("Employee already found: ", res.data)
-    //             this.setState({alreadyExists: res.data});
-    //         })
-    //         .catch(err => console.error(err)); 
-    //     }
-    //     else {this.setState ({attemptToSubmit: true});}
-    // }
 
-    // callBackendAPI = async () => {
-    //     const response = await fetch("http://localhost:5000/createprofile", {
-    //         method: 'POST',
-    //         body:  JSON.stringify({ 
-    //                 ID          : this.state.employeeID,
-    //                 LastName    : this.state.lastName,
-    //                 FirstName   : this.state.firstName,
-    //                 Occ         : this.state.occupation,
-    //                 Pass        : this.state.password
-    //         }),
-    //         headers: {
-    //             'Content-type': 'application/json',
-    //             'Accept' : 'application/json',
-    //             'Access-Control-Request-Method' : 'POST'
-    //         }
-    //     })
-    //     const body = await response.json();
-    //     if (response.status!== 200) {
-    //         throw Error(body.message)
-    //     }
-    //     return body;
-    // }
+    display() {
+        if (this.state.drugDataKey.length !== 0){
+            let vals = this.state.drugDataValue;
+
+            let items = vals.map(d => {
+                let colour;
+                if (d.Risk === "High") { colour = 'rgb(222, 32, 7)';}
+                else if (d.Risk === "Medium") { colour = 'rgb(222, 175, 7)';}
+                else if (d.Risk === "Low") { colour = 'rgb(27, 150, 52)'}
+
+                return (
+                    <tr key={d.ID}>
+                        <td style={{paddingRight: 30}}>{d.ID}</td><td style={{paddingRight: 30}}>{d.DrugName}</td><td style={{paddingRight: 30}}>{d.Dosage}</td>
+                        <td style={{paddingRight: 30}}>{d.Instructions}</td><td style={{paddingRight: 30, color: colour}}>{d.Risk}</td><td style={{paddingRight: 15}}>{d.Effect}</td>
+                        <td><Button color="secondary">Select</Button></td>
+                    </tr>
+                )   
+            })
+               
+            return (
+                <div>
+                    <h3> Please choose the drug you'd like to withdraw. </h3>
+                    <table> 
+                        <tbody>
+                            <tr>
+                                <td style={{paddingRight: 30, fontWeight:"bold"}}>ID: </td><td style={{paddingRight: 30, fontWeight:"bold"}}>Drug Name:</td><td style={{paddingRight: 30, fontWeight:"bold"}}>Dosage:</td>
+                                <td style={{paddingRight: 30, fontWeight:"bold"}}>Instructions:</td><td style={{paddingRight: 30, fontWeight:"bold"}}>Risk:</td><td style={{paddingRight: 30, fontWeight:"bold"}}>Effects:</td>
+                            </tr>        
+                            {items} 
+                        </tbody>
+                    </table> 
+                </div>
+                
+            )
+        }
+        else {
+            return (
+                <p>You have nothing in the database yet.</p>
+            )
+        }        
+    }
+
 
     render() {
-        let emptyForm;
-        if (this.state.attemptToSubmit) { emptyForm = <h6>Please fill in all fields before submitting.</h6>}
+        let drugDisplay = this.display();
         return (
-            <Paper elevation={3} style={{fontFamily: 'Montserrat', padding:20, minWidth:150, maxWidth:500, minHeight:300, maxHeight:600}}>
-                <h1>Select which drug you would like to retrieve.</h1>
-                {/* <form>
-                    <p> Enter Your Employee ID: </p>
-                    <TextField onChange={this.handleChangeID} value={this.state.employeeID} id="outlined-basic" label="Employee ID" variant="outlined" required/> <br />
-
-                    <p> Enter Your Last Name: </p>
-                    <TextField onChange={this.handleChangeLast} value={this.state.lastName} id="outlined-basic" label="Last Name" variant="outlined" required/> <br />
-
-                    <p> Enter Your First Name: </p>
-                    <TextField onChange={this.handleChangeFirst} value={this.state.firstName} id="outlined-basic" label="First Name" variant="outlined" required/> <br />
-
-                    <p> You are a: </p>
-                    <select onChange={this.handleChangeOcc} value={this.state.occupation} required> 
-                        <option>          </option>
-                        <option>Pharmacist</option>
-                        <option>Nurse     </option>
-                    </select> <br />
-
-                    <p> Enter a Password: </p>
-                    <TextField type="password" value={this.state.password} onChange={this.handleChangePass} id="outlined-basic" label="Password" variant="outlined" required/> <br />
-                    <br /><br /><br /><br />
-                    {emptyForm}
-                    <Button variant="contained" type="submit" onClick={this.handleSubmit}>Submit Profile</Button>
-                </form> */}
-            </Paper>
+            <div>
+                <Paper elevation={3} style={{fontFamily: 'Montserrat', padding:20}}>
+                    {drugDisplay}
+                </Paper>
+            </div>
         )
     }
 };

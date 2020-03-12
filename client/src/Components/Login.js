@@ -15,6 +15,7 @@ class Login extends Component {
 
             isValid: false,
             attemptedLogin: false,
+            loading: false,
             returnedFN : "",
             returnedLN : "",
             returnedOCC: "",
@@ -30,7 +31,7 @@ class Login extends Component {
     
     handleSubmit(event) {
         event.preventDefault(); //prevents page from reloading by default "onSubmit"
-
+        this.setState({loading: true});
         this.callBackendAPI()
         .then (res => {
             this.setState({isValid: res.data}); //determines whether or not the password was right
@@ -42,7 +43,10 @@ class Login extends Component {
         })
         .catch(err => {
             console.error('There was a problem.', err);
-        });
+        })
+        .then(()=>{
+            this.setState({loading: false})
+        })
     }   
 
     callBackendAPI = async() => {
@@ -81,10 +85,13 @@ class Login extends Component {
 
     render() {
         //by default, the "retry" message to try logging in again is empty
-        let retry = <h6> </h6> 
+        let retry = <p> </p> 
         
+        //loading message for while the login is being authenticated
+        if (this.state.loading) {retry = <h5>Logging in...please wait.</h5>}
+
         //if the credentials are invalid and there was an attempt to login, set the "retry" message to:
-        if (!this.state.isValid && this.state.attemptedLogin) {retry = <h6>Invalid Login. Please try again.</h6>}
+        else if (!this.state.isValid && this.state.attemptedLogin) {retry = <h5>Invalid Login. Please try again.</h5>}
 
         //if there is no valid login (so on a wrong attempt, and by default), load the login page
         if (!this.state.isValid){
@@ -92,16 +99,16 @@ class Login extends Component {
                 <Paper elevation={3} style={{fontFamily: 'Montserrat', padding:20, minWidth:150, maxWidth:500, minHeight:300, maxHeight:600}}>
                     <Button variant="outlined" onClick={this.props.loginAndOut} type = "submit">Back to Homepage</Button>
                     <h1>Login</h1>
+                    {retry}
                     <form onSubmit={this.handleSubmit}>
                         <p> Enter Your Employee ID: </p>
-                        <TextField onChange={this.handleChangeID} value={this.state.employeeID} id="outlined-basic" label="Employee ID" variant="outlined" required/> <br />
+                        <TextField onChange={this.handleChangeID} value={this.state.employeeID} label="Employee ID" variant="outlined" required/> <br />
 
                         <p> Enter Your Password: </p>
-                        <TextField type="password" onChange={this.handleChangePass} value={this.state.password} id="outlined-basic" label="Password" variant="outlined" required/> <br />
+                        <TextField type="password" onChange={this.handleChangePass} value={this.state.password} label="Password" variant="outlined" required/> <br />
                         <br /><br /><br /><br />
                         <Button variant="contained" type="submit">Login</Button>
                     </form>
-                    {retry}
                 </Paper>
             )
         }

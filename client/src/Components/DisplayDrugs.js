@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import '../App.css';
 import Button from '@material-ui/core/Button';
+import Pharmacist from './Pharmacist';
+import Paper from '@material-ui/core/Paper';
 
 class DisplayDrugs extends Component {
     constructor (props){
@@ -9,12 +11,22 @@ class DisplayDrugs extends Component {
             drugDataKey: [],
             drugDataValue: [],
             // drugData: {},
+            edit: false,
+            loading: false,
+
+            editDrugID: "",
+            editDrugName: "",
+            editDrugDosage: "",
+            editDrugRisk: "",
+            editDrugEffect: "",
+            editDrugInstructions: "",
         };
         this.display = this.display.bind(this);
         this.delete = this.delete.bind(this);
+        this.edit = this.edit.bind(this);
     }
     
-    componentWillMount(){
+    componentDidMount(){
         this.callBackendAPI()
         .then (res => { 
             this.setState({drugDataKey: [...Object.keys(res.data)]});  //storing drugIDs into state
@@ -23,12 +35,15 @@ class DisplayDrugs extends Component {
             // this.setState({drugData: {...res.data}});
             console.log("these are the keys: ", this.state.drugDataKey);
             console.log("these are the values: ", this.state.drugDataValue);
-            // console.log("both: ", this.state.drugData);
         })
         .catch (err => console.error(err))
+        .then(()=> {
+            this.setState({loading: false})
+        })
     }   
 
     callBackendAPI = async () => {
+        this.setState({loading: true})
         const response = await fetch("http://localhost:5000/getdrugs", {
             method: 'GET',
             headers: {
@@ -64,8 +79,21 @@ class DisplayDrugs extends Component {
     delete(item) {
         this.deleteFromDatabase(item.ID)
         .then(res => console.log(res.data))
-        .then(()=> this.componentWillMount())
+        .then(()=> this.componentDidMount())
         .catch(err =>console.error(err))
+    }
+    
+    edit(item) {
+        //if someone wants to edit a drug, we set edit state to be true
+        //bind all the item info 
+        //the display drugForm state should still be false
+        this.setState({edit: true});
+        this.setState({editDrugID: item.ID});
+        this.setState({editDrugName: item.DrugName});
+        this.setState({editDrugDosage: item.Dosage});
+        this.setState({editDrugRisk: item.Risk});
+        this.setState({editDrugEffect: item.Effect});
+        this.setState({editDrugInstructions: item.Instructions});
     }
 
     display() {
@@ -73,11 +101,15 @@ class DisplayDrugs extends Component {
             let vals = this.state.drugDataValue;
 
             let items = vals.map(d => {
+                let colour;
+                if (d.Risk === "High") { colour = 'rgb(222, 32, 7)';}
+                else if (d.Risk === "Medium") { colour = 'rgb(222, 175, 7)';}
+                else if (d.Risk === "Low") { colour = 'rgb(27, 150, 52)'}
                 return (
                     <tr key={d.ID}>
                         <td style={{paddingRight: 30}}>{d.ID}</td><td style={{paddingRight: 30}}>{d.DrugName}</td><td style={{paddingRight: 30}}>{d.Dosage}</td>
-                        <td style={{paddingRight: 30}}>{d.Instructions}</td><td style={{paddingRight: 30}}>{d.Risk}</td><td style={{paddingRight: 15}}>{d.Effect}</td>
-                        <td><Button color="primary">Edit</Button></td>
+                        <td style={{paddingRight: 30}}>{d.Instructions}</td><td style={{paddingRight: 30, color: colour}}>{d.Risk}</td><td style={{paddingRight: 15}}>{d.Effect}</td>
+                        <td><Button color="primary" onClick={this.edit.bind(this, d)}>Edit</Button></td>
                         <td><Button color="secondary" onClick={this.delete.bind(this, d)}>Delete</Button></td>
                     </tr>
                 )   
@@ -99,19 +131,37 @@ class DisplayDrugs extends Component {
                 
             )
         }
-        else {
-            return (
-                <p>You have nothing in the database yet.</p>
-            )
-        }        
+        //while data is being fetched from the database 
+        else if (this.state.loading){return(<h3>Loading...please wait.</h3>)}
+        //when db is empty
+        else {return (<h3>You have nothing in the database yet.</h3>)}
+    }
+
+    componentWillUnmount () {
+        this.setState({edit: false});
     }
 
 
     render() {
         let drugDisplay = this.display();
-        return (
-            <div>{drugDisplay}</div>
-        )
+        //if someone wants to edit, we return to the pharmacist page, and pass all the properties of that drug
+        //wanttoedit should be passed as true
+        if (this.state.edit){
+            return <Pharmacist wanttoedit="true" editID={this.state.editDrugID} editName = {this.state.editDrugName} editDosage={this.state.editDrugDosage}
+                             editInstructions={this.state.editDrugInstructions} editRisk={this.state.editDrugRisk} editEffect={this.state.editDrugEffect}/>
+        }
+        //display a button that lets people to add a new drug
+        //onClick, this should set the display drug from to true
+        else {
+            return (
+                <div>
+                    <Paper elevation={3} style={{fontFamily: 'Montserrat', padding:20}}>
+                        <Button variant="contained" onClick={this.props.backToPharm}>Enter a New Drug</Button>
+                        {drugDisplay}
+                    </Paper>
+                </div>
+            )
+        }
     }
 };
 

@@ -24,15 +24,7 @@ class Homepage extends Component {
         
     render() {
         let loginButton, createProfileButton, welcomeMessage;
-
-        //while the data is still being fetched from the database, buttons are disabled
-        // if (!this.state.dataLoaded){ 
-        //     welcomeMessage = <h1 style={{fontFamily: 'Roboto, sans-serif' }}> Data is loading...please wait. </h1>
-        //     loginButton = <Button variant="contained" color="primary" onClick={this.handleClickLogin} type = "submit" disabled>Login</Button>
-        //     createProfileButton = <Button variant="outlined"  color="primary" onClick={this.handleClickCreate} type = "submit" disabled>Create Profile</Button>
-        // }
-        //once data is loaded, buttons are activated
-        
+       
         welcomeMessage = <h1 style={{fontFamily: 'Roboto, sans-serif' }}> Welcome to DrugLock 2.0. </h1>
         loginButton = <Button variant="contained" color="primary" onClick={this.handleClickLogin} type = "submit" >Login</Button>
         createProfileButton = <Button variant="outlined"  color="primary" onClick={this.handleClickCreate} type = "submit">Create Profile</Button>
