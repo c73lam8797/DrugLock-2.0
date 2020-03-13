@@ -8,15 +8,11 @@ class CreateProfile extends Component {
     constructor (props){
         super (props);
         this.state = {
-            employeeID: "",
-            lastName : "",
-            firstName : "",
-            occupation : "",
-            password: "",
+            //handling user input based from form entry 
+            employeeID: "", lastName : "", firstName : "", occupation : "", password: "",
 
-            alreadyExists: false,
-            attemptToSubmit: false,
-            successfulSubmit: false,
+            //states determining what to display
+            alreadyExists: false, attemptToSubmit: false, successfulSubmit: false, isEmpty: true,
         };
         this.handleSubmit      = this.handleSubmit.bind(this);
         this.handleChangeID    = this.handleChangeID.bind(this);
@@ -33,29 +29,33 @@ class CreateProfile extends Component {
     handleChangePass (event){ this.setState({password:   event.target.value}); }
     
     handleSubmit(event) {
+        event.preventDefault();
+
         //if the form is not empty, we post to the backend
         if (this.state.employeeID != "" && this.state.lastName != ""
         && this.state.firstName != "" && this.state.occupation != "" && this.state.password != ""){
-            event.preventDefault();
+            this.setState({isEmpty: false});
             this.callBackendAPI()
             .then(res => {
-                console.log("Employee already found: ", res.data)
+                console.log("Employee already found: ", res.data) //for debugging 
                 this.setState({alreadyExists: res.data});
 
-                if (!this.state.alreadyExists) { //if employee doesn't already exist, submission is successful
+                //if employee doesn't already exist, submission is successful, and there was an attempt to submit
+                if (!this.state.alreadyExists) { 
                     this.setState ({successfulSubmit: true});
                     this.setState ({attemptToSubmit: true}); 
                 }
             })
             .catch(err => console.error(err)); 
         }
-        //otherwise, there was an attempt to submit data
-        else {this.setState ({attemptToSubmit: true}); this.setState({successfulSubmit: false})}
+        //otherwise, there we set state so that there was an attempt to submit, but it was not suffessful 
+        else {this.setState ({attemptToSubmit: true}); this.setState({successfulSubmit: false}); this.setState({isEmpty: true})};
     }
 
     callBackendAPI = async () => {
         const response = await fetch("http://localhost:5000/createprofile", {
             method: 'POST',
+            //send JSON to backend containing user input
             body:  JSON.stringify({ 
                     ID          : this.state.employeeID,
                     LastName    : this.state.lastName,
@@ -66,7 +66,6 @@ class CreateProfile extends Component {
             headers: {
                 'Content-type': 'application/json',
                 'Accept' : 'application/json',
-                'Access-Control-Request-Method' : 'application/postscript'
             }
         })
         const body = await response.json();
@@ -77,14 +76,24 @@ class CreateProfile extends Component {
     }
 
     render() {
-        let emptyForm;
-        if (this.state.successfulSubmit && this.state.attemptToSubmit) { emptyForm = <h5>Profile successfully created.</h5>}
-        else if (this.state.attemptToSubmit && !this.state.successfulSubmit) { emptyForm = <h6>Please fill in all fields before submitting.</h6>}
+        let message;
+        //if the drug was already found in the database
+        if (this.state.alreadyExists && !this.state.isEmpty) {message = <h5>Employee already exists in the database.</h5>}
+        //if there was a successful submit and an attempt to submit, the login passed authentication, and was submitted
+        else if (this.state.successfulSubmit && this.state.attemptToSubmit) { message = <h5>Profile successfully created.</h5>}
+        //if there was no successful submit, but an attempt to submit, some fields are empty
+        else if (this.state.attemptToSubmit && !this.state.successfulSubmit && this.state.isEmpty) { message = <h5>Please fill in all fields before submitting.</h5>}
+
 
         return (
             <Paper elevation={3} style={{fontFamily: 'Montserrat', padding:20, minWidth:150, maxWidth:500, minHeight:"95vh", overflow: "initial"}}>
+                {/* uses props passed in from homepage to change state and return back to homepage */}
                 <Button variant="outlined" onClick={this.props.backToPage} type = "submit">Back To Homepage</Button>
                 <h1>Create an Employee Profile</h1>
+
+                {/* displays error message, if any */}
+                {message}
+
                 <form>
                     <p> Enter Your Employee ID: </p>
                     <TextField onChange={this.handleChangeID} value={this.state.employeeID} id="outlined-basic" label="Employee ID" variant="outlined" required/> <br />
@@ -104,7 +113,6 @@ class CreateProfile extends Component {
 
                     <p> Enter a Password: </p>
                     <TextField type="password" value={this.state.password} onChange={this.handleChangePass} id="outlined-basic" label="Password" variant="outlined" required/> <br />
-                    {emptyForm}
                     <br />
                     <Button variant="contained" type="submit" onClick={this.handleSubmit}>Submit Profile</Button>
                 </form>

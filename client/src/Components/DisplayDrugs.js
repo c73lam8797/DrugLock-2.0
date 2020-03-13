@@ -8,22 +8,18 @@ class DisplayDrugs extends Component {
     constructor (props){
         super (props);
         this.state = {
-            drugDataKey: [],
-            drugDataValue: [],
-            // drugData: {},
-            edit: false,
-            loading: false,
+            //data retrieved from the database
+            drugDataKey: [], drugDataValue: [],
 
-            editDrugID: "",
-            editDrugName: "",
-            editDrugDosage: "",
-            editDrugRisk: "",
-            editDrugEffect: "",
-            editDrugInstructions: "",
+            //states handling what is to be loaded
+            edit: false, loading: false,
+
+            //the properties of the drugs that want to be edited, to be passed into the drug form component 
+            editDrugID: "", editDrugName: "", editDrugDosage: "", editDrugRisk: "", editDrugEffect: "", editDrugInstructions: "",
         };
         this.display = this.display.bind(this);
-        this.delete = this.delete.bind(this);
-        this.edit = this.edit.bind(this);
+        this.delete  = this.delete.bind(this);
+        this.edit    = this.edit.bind(this);
     }
     
     componentDidMount(){
@@ -32,23 +28,21 @@ class DisplayDrugs extends Component {
             this.setState({drugDataKey: [...Object.keys(res.data)]});  //storing drugIDs into state
             this.setState({drugDataValue: [...Object.values(res.data)]});// store the properties into state 
 
-            // this.setState({drugData: {...res.data}});
+            // for debugging
             console.log("these are the keys: ", this.state.drugDataKey);
             console.log("these are the values: ", this.state.drugDataValue);
         })
         .catch (err => console.error(err))
         .then(()=> {
-            this.setState({loading: false})
+            this.setState({loading: false}) //to 'remove' loading statement after database retrieves data
         })
     }   
 
     callBackendAPI = async () => {
-        this.setState({loading: true})
+        this.setState({loading: true}) //set state to display 'loading' statement
         const response = await fetch("http://localhost:5000/getdrugs", {
             method: 'GET',
-            headers: {
-                'Accept' : 'application/json',
-            }
+            headers: {'Accept' : 'application/json',}
         })
         const body = await response.json();
         if (response.status!== 200) {
@@ -60,9 +54,7 @@ class DisplayDrugs extends Component {
     deleteFromDatabase = async(id) => {
         const response = await fetch("http://localhost:5000/deleteDrug", {
             method: 'DELETE',
-            body:  JSON.stringify({ 
-                    ID : id
-            }),
+            body:  JSON.stringify({ ID : id }),
             headers: {
                 'Content-type': 'application/json',
                 'Accept' : 'application/json',
@@ -77,9 +69,10 @@ class DisplayDrugs extends Component {
     }
 
     delete(item) {
+        //delete item at their ID
         this.deleteFromDatabase(item.ID)
         .then(res => console.log(res.data))
-        .then(()=> this.componentDidMount())
+        .then(() => this.componentDidMount()) //reloading the data locally
         .catch(err =>console.error(err))
     }
     
@@ -102,14 +95,14 @@ class DisplayDrugs extends Component {
 
             let items = vals.map(d => {
                 let colour;
-                if (d.Risk === "High") { colour = 'rgb(222, 32, 7)';}
+                if      (d.Risk === "High")   { colour = 'rgb(222, 32, 7)' ;}
                 else if (d.Risk === "Medium") { colour = 'rgb(222, 175, 7)';}
-                else if (d.Risk === "Low") { colour = 'rgb(27, 150, 52)'}
+                else if (d.Risk === "Low")    { colour = 'rgb(27, 150, 52)';}
                 return (
                     <tr key={d.ID}>
                         <td style={{paddingRight: 30}}>{d.ID}</td><td style={{paddingRight: 30}}>{d.DrugName}</td><td style={{paddingRight: 30}}>{d.Dosage}</td>
                         <td style={{paddingRight: 30}}>{d.Instructions}</td><td style={{paddingRight: 30, color: colour}}>{d.Risk}</td><td style={{paddingRight: 15}}>{d.Effect}</td>
-                        <td><Button color="primary" onClick={this.edit.bind(this, d)}>Edit</Button></td>
+                        <td><Button color="primary"   onClick={this.edit.bind(this, d)}>Edit</Button></td>
                         <td><Button color="secondary" onClick={this.delete.bind(this, d)}>Delete</Button></td>
                     </tr>
                 )   
@@ -147,8 +140,13 @@ class DisplayDrugs extends Component {
         //if someone wants to edit, we return to the pharmacist page, and pass all the properties of that drug
         //wanttoedit should be passed as true
         if (this.state.edit){
-            return <Pharmacist wanttoedit="true" editID={this.state.editDrugID} editName = {this.state.editDrugName} editDosage={this.state.editDrugDosage}
-                             editInstructions={this.state.editDrugInstructions} editRisk={this.state.editDrugRisk} editEffect={this.state.editDrugEffect}/>
+            return <Pharmacist wanttoedit="true" 
+                               editID          ={this.state.editDrugID} 
+                               editName        = {this.state.editDrugName} 
+                               editDosage      ={this.state.editDrugDosage}
+                               editInstructions={this.state.editDrugInstructions} 
+                               editRisk        ={this.state.editDrugRisk} 
+                               editEffect      ={this.state.editDrugEffect}/>
         }
         //display a button that lets people to add a new drug
         //onClick, this should set the display drug from to true

@@ -19,8 +19,9 @@ code {
     monospace;
 }
 
-
-
+#select {
+  background: linear-gradient(0deg, rgba(180,175,189,0.3925945378151261) 28%, rgba(133,77,190,0.24413515406162467) 86%);
+}
 
 
 

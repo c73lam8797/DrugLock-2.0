@@ -1,5 +1,4 @@
 const express = require('express')
-// const bodyParser = require('body-parser')
 const cors = require('cors')
 const app = express()
 const apiPort = 5000
@@ -36,39 +35,46 @@ app.use(cors({
 }))
 
 // ---------- <<< END OF CONFIGURATION >>>-------------
+
+//adding or editing a new drug into the database 
 app.post('/newdrug', (req, res) => {
     const drugID = req.body.ID;
     var drugFound = false;
-    var wantToEdit = req.body.Edit;
 
     db.collection("Drugs").doc(drugID).get()
     .then (data => {
-        //if data exists for that drug already
-        if (data.exists && wantToEdit == false){ 
+        //if data exists for that drug already and the person doesn't want to edit
+            
+        console.log(data.exists && req.body.Edit==false); //for debugging
+
+        //if the data exist AND the user does not want to edit the drug
+        if (data.exists && (req.body.Edit==false)){ 
             drugFound = true; 
+            console.log("Drug already exists in the database")
             res.send({data: drugFound}); //send a response that the drug was already found
         }
-        //if drug doesnt already exist or if the person wants to edit
+
+        //if drug doesnt already exist or the person wants to edit
         else { 
             //write in the new data
-            const drugName = req.body.DrugName;
-            const dosage = req.body.Dosage;
+            const drugName     = req.body.DrugName;
+            const dosage       = req.body.Dosage;
             const instructions = req.body.Instructions;
-            const risk = req.body.Risk;
-            const effect = req.body.Effect;
+            const risk         = req.body.Risk;
+            const effect       = req.body.Effect;
 
+            //write in passed input at the given drugID
             db.collection("Drugs").doc(drugID).set({
-                ID: drugID,
-                DrugName: drugName,
-                Dosage: dosage,
+                ID          : drugID,
+                DrugName    : drugName,
+                Dosage      : dosage,
                 Instructions: instructions,
-                Risk: risk,
-                Effect: effect,
+                Risk        : risk,
+                Effect      : effect,
             })  
             .then(function(){
                 console.log("Drug successfully added!");
                 res.send({data: drugFound}); //send a response that the drug wasn't already found
-    
             })
             .catch(function(error) {
                 console.error(error);
@@ -78,56 +84,32 @@ app.post('/newdrug', (req, res) => {
 });
 
 
-app.put('/editdrug', (req, res) => {
-    const drugID = req.body.ID;
-    const drugName = req.body.DrugName;
-    const dosage = req.body.Dosage;
-    const instructions = req.body.Instructions;
-    const risk = req.body.Risk;
-    const effect = req.body.Effect;
-
-    db.collection("Drugs").doc(drugID).set({
-        ID: drugID,
-        DrugName: drugName,
-        Dosage: dosage,
-        Instructions: instructions,
-        Risk: risk,
-        Effect: effect,
-    })
-    .then(function(){
-        res.send({data: true})
-    })
-    .catch(function(error) {
-        console.error(error);
-    })
-});
-
-
+//retrieving drugs from the database
 app.get('/getdrugs', (req, res) => {
     var drugData = {};
     db.collection("Drugs").get()
     .then (snapshot => {
+        //map each snapshot to its specific document and its properties
         snapshot.forEach(doc =>{
-            let obj = {};
-            obj[doc.data().ID] = doc.data()
-            drugData = {...drugData, ...obj}
+            let obj = {}; //create a temporary object
+            obj[doc.data().ID] = doc.data() //set the key to be the drugID, and then the values to be ALL its properties (including ID)
+            drugData = {...drugData, ...obj}//add it on to the object
         })
     })
     .then (function(){
-        console.log(drugData);
+        console.log(drugData); //for debugging
         res.send ({data: drugData});
     })
     .catch(err => console.error(err))
 })
 
-
+//create an employee profile
 app.post('/createprofile', (req, res) => {
     const employeeID = req.body.ID;
     var employeeFound = false;
 
     db.collection("Employees").doc(employeeID).get()
     .then (data => {
-        console.log(data.exists);
         //if data exists for that employeeID
         if (data.exists){ 
             employeeFound = true;
@@ -159,9 +141,9 @@ app.post('/createprofile', (req, res) => {
     })
 });
 
+//deleting drugs from the database at given ID
 app.delete('/deleteDrug', (req, res) => {
     const id = req.body.ID;
-    
     db.collection("Drugs").doc(id).delete()
     .then(function(){
         res.send({data: "Success"})
@@ -172,16 +154,21 @@ app.delete('/deleteDrug', (req, res) => {
 //fetching employee information from database 
 app.post('/login', (req ,res) => {
     console.log(req.body);
+
+    //storing the passed in user input 
     const sentID = req.body.ID;
     const sentPassword = req.body.Password;
 
     let employeeInfo = {
         Password: "",
     }
+
+    //x is a variable that holds the comparison of the passwords 
     var x   = false;
-    var FN  = "";
-    var LN  = "";
-    var OCC = "";
+    //create variables to store data retrieval from database
+    var FN  = ""; //firstname
+    var LN  = ""; //lastname
+    var OCC = ""; //occupation 
     
     db.collection("Employees").doc(sentID).get()
     .then(doc => {
@@ -191,9 +178,11 @@ app.post('/login', (req ,res) => {
         }
         //otherwise, check the data 
         else {
-            employeeInfo.Password = doc.data()["Password"];
+            employeeInfo.Password = doc.data()["Password"]; //set employeeInfo.Password to the password found at the given document 
             console.log("Employee data successfully retrieved!");
-            x =  (sentPassword === employeeInfo.Password); //returns whether or not the passwords are the same
+            x =  (sentPassword === employeeInfo.Password); //determines whether or not the passwords are the same
+
+            //store retrieved data from database 
             FN  = doc.data()["FirstName"];
             LN  = doc.data()["LastName"];
             OCC = doc.data()["Occupation"];
@@ -201,7 +190,8 @@ app.post('/login', (req ,res) => {
         Promise.resolve();
     })
     .then(() => {
-        console.log(x);
+        console.log("passwords are the same: ", x); //for debugging
+        
         //send back the retrieved data, and whether or not the login was valid
         res.send ( { 
             data: x,

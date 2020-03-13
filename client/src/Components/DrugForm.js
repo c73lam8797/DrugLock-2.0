@@ -8,18 +8,11 @@ class DrugForm extends Component {
     constructor (props){
         super (props);
         this.state = {
-            drugID: "",
-            drugName: "",
-            dosage: "",
-            instructions: "",
-            risk: "",
-            effects: "",
-
-            attemptToSubmit: false,
-            emptyForm: false,
-            alreadyExists: false,
-            successfulSubmit: false,
-            wantToEdit: false,
+            //properties binded to the input on the form 
+            drugID: "", drugName: "", dosage: "", instructions: "", risk: "", effects: "",
+            
+            //states determining what to display
+            attemptToSubmit: false, alreadyExists: false,  successfulSubmit: false, wantToEdit: false, isEmpty: true,
         };
         this.handleSubmit = this.handleSubmit.bind(this);
 
@@ -37,8 +30,9 @@ class DrugForm extends Component {
     handleChangeRisk        (event){ this.setState({risk        : event.target.value}); }
     handleChangeEffects     (event){ this.setState({effects     : event.target.value}); }
     
+    //used to bind passed in props from the pharmacist page to the state, which displays it on the form
     componentDidMount(){
-        console.log("want to edit", this.props.wanttoedit);
+        console.log("want to edit", this.props.wanttoedit); //for debugging 
         if (this.props.wanttoedit){
             this.setState({drugID      : this.props.editID}); 
             this.setState({drugName    : this.props.editName}); 
@@ -49,63 +43,79 @@ class DrugForm extends Component {
     
             //if its an empty form, want to edit should be false (default)
             //if edit, want to edit should be passed as true
-            this.setState({wantToEdit  : this.props.wanttoedit});
+            if (this.props.wanttoedit == "true") {
+                this.setState({wantToEdit  : true});
+            }
         }
     }
 
     handleSubmit(event) {
         event.preventDefault();
  
-        //if the form is not empty
-        if (this.state.drugID !== undefined && this.state.drugName !== undefined && this.state.dosage !== undefined 
-        && this.state.instructions !== undefined && this.state.risk!== undefined && this.state.effects !== undefined) {
-            event.preventDefault();
+        //if any of the strings are empty or undefined, the form is not valid
+        if ((this.state.drugID       == undefined || this.state.drugID       == "") || 
+            (this.state.drugName     == undefined || this.state.drugName     == "") || 
+            (this.state.dosage       == undefined || this.state.dosage       == "") ||
+            (this.state.instructions == undefined || this.state.instructions == "") || 
+            (this.state.risk         == undefined || this.state.risk         == "") || 
+            (this.state.effects      == undefined || this.state.effects      == "") )
+        {
+            this.setState ({attemptToSubmit: true});
+            this.setState ({isEmpty: true})
+        }
+
+        else{
+            this.setState({isEmpty: false}); //otherwise, it is not empty
+
             this.callBackendAPI()
             .then(res => {
                 if (this.state.wantToEdit){
                     console.log("Drug successfully edited!")
                 }
-                else{
+                //if someone wants to submit a new entry, we must notify them whether or not that drug already exists
+                else {
                     console.log("Drug already found: ", res.data)
                     this.setState({alreadyExists: res.data});
                 }
 
-                if (!this.state.alreadyExists || this.state.wantToEdit){ //if it doesnt already exist, or someone wants to edit the form
+                //if the ID doesnt already exist in the database(on new entry), or someone wants to edit the form, submission is successful
+                if ((this.state.alreadyExists==false) || this.state.wantToEdit){ 
                     console.log ("Successful submission!")
                     this.setState({successfulSubmit: true});
 
+                    //returns back to pharm page using the props passed in, setting the drugForm state on that page to false
                     if (this.state.successfulSubmit){
-                        this.props.backToPharm(); //returns back to pharm page using the props passed in, setting the drugForm state on that page to false
+                        this.props.backToPharm(); 
                     }
                 }
             })
-            .catch(err => console.error(err));
+            .catch(err => console.error(err))
+            .then(()=>{
+                //there is always an attempt to submit
+                this.setState ({attemptToSubmit: true});
+            })
         }
-        //there was an attempt to submit
-        else {
-            this.setState ({attemptToSubmit: true});
-        } 
     }
 
     callBackendAPI = async () => {
-            const response = await fetch("http://localhost:5000/newdrug", {
-                method: 'POST',
-                body:  JSON.stringify({ 
-                        ID          : this.state.drugID,
-                        DrugName    : this.state.drugName,
-                        Dosage      : this.state.dosage,
-                        Instructions: this.state.instructions,
-                        Risk        : this.state.risk,
-                        Effect      : this.state.effects,
-                        Edit        : this.state.wantToEdit,
-    
-                }),
-                headers: {
-                    'Content-type': 'application/json',
-                    'Accept' : 'application/json',
-                }
-            })
-        // }
+        const response = await fetch("http://localhost:5000/newdrug", {
+            method: 'POST',
+            //send in JSON to the backend to write into database 
+            body:  JSON.stringify({ 
+                    ID          : this.state.drugID,
+                    DrugName    : this.state.drugName,
+                    Dosage      : this.state.dosage,
+                    Instructions: this.state.instructions,
+                    Risk        : this.state.risk,
+                    Effect      : this.state.effects,
+                    Edit        : this.state.wantToEdit,
+
+            }),
+            headers: {
+                'Content-type': 'application/json',
+                'Accept' : 'application/json',
+            }
+        })
 
         const body = await response.json();
         if (response.status!== 200) {
@@ -116,15 +126,22 @@ class DrugForm extends Component {
 
     render() {
         let emptyForm;
-        if (this.state.attemptToSubmit) { emptyForm = <h6>Please fill in all fields before submitting.</h6>}
+        //if someone attempts to submit, but the form has an empty field
+        if (this.state.attemptToSubmit && this.state.isEmpty) { emptyForm = <h6>Please fill in all fields before submitting.</h6>}
+        //if the drug was already found in the database, the person does NOT want to edit, and the form is not empty
+        else if (this.state.alreadyExists && !this.state.wantToEdit && !this.state.isEmpty) {emptyForm = <h6>The drug ID already exists. </h6> }
+        //if the submission was successful
         else if (this.state.successfulSubmit) {emptyForm = <h6>Submission was successful.</h6>}
 
-        //onClick, use the backToPharm props passed in from the pharmacist page `
-        //will set the drugForm state to false
+       
         return (
             <Paper elevation={3} style={{fontFamily: 'Montserrat', padding:20}}>
+
+                 {/* onClick, use the backToPharm props passed in from the pharmacist page, toggling the 'drugForm' state to false */}
                 <Button variant="contained" onClick={this.props.backToPharm} >Go Back</Button>
-                <h1>Enter a new drug</h1>
+
+                <h1>{this.state.wantToEdit ? 'Edit Drug' : 'Enter a New Drug'}</h1>
+                {emptyForm}
                 <form>
                     <p> Enter the Drug ID: </p>
                     <TextField onChange={this.handleChangeID} value={this.state.drugID || ""} label="Drug ID" variant="outlined" required/> <br />
@@ -149,7 +166,7 @@ class DrugForm extends Component {
                     <p> What are the possible effects? </p>
                     <TextField onChange={this.handleChangeEffects} value={this.state.effects || ""} label="Effects" variant="outlined" required/> <br />
                     <br />
-                    {emptyForm}
+                    
                     <Button variant="contained" type="submit" onClick={this.handleSubmit}>Submit Drug Entry</Button>
                 </form>
             </Paper>
