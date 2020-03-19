@@ -155,7 +155,7 @@ class DrugForm extends Component {
                     <p> Enter the Administration Instructions: </p>
                     <TextField onChange={this.handleChangeInstructions} value={this.state.instructions || ""} label="Instructions" variant="outlined" style={{width: 500}} rows={3} required multiline/> <br />
 
-                    <p> What is the Risk? </p>
+                    <p> What is the Risk of Fatality? </p>
                     <select onChange={this.handleChangeRisk} value={this.state.risk || ""} required> 
                         <option>        </option>
                         <option>Low     </option>
@@ -163,7 +163,7 @@ class DrugForm extends Component {
                         <option>High    </option>
                     </select> <br />
 
-                    <p> What are the possible effects? </p>
+                    <p> What are the Possible Effects? </p>
                     <TextField onChange={this.handleChangeEffects} value={this.state.effects || ""} label="Effects" variant="outlined" required/> <br />
                     <br />
                     
